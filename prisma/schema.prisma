@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String     @id @default(cuid())
+  name        String
+  email       String     @unique
+  password    String
+  plan        String     @default("FREE")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  analyses    Analysis[]
+  usage       Usage?
+}
+
+model Analysis {
+  id           String   @id @default(cuid())
+  userId       String
+  resumeTitle  String
+  resumeText   String
+  score        Int
+  atsScore     Int
+  summary      String
+  suggestions  String
+  jdText       String?
+  jdMatchScore Int?
+  missingKeywords String?
+  matchedKeywords String?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Usage {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  usedCount  Int      @default(0)
+  limitCount Int      @default(5)
+  monthKey   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
